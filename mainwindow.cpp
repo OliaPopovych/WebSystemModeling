@@ -10,6 +10,7 @@ MainWindow::MainWindow(vector<vector<double> > &arr, QWidget *parent) :
     // створюємо модель і присвоюємо її tableView
     tabModel = new myTableModel(arr);
     ui->tableView->setModel(tabModel);
+
 }
 
 MainWindow::~MainWindow()

@@ -1,12 +1,5 @@
 #include "tablemodel.h"
 
-void myTableModel::setProbMat(double **arr, int size)
-{
-    //this->probMat = arr;
-
-
-}
-
 myTableModel::myTableModel(){
 }
 myTableModel::myTableModel(vector<vector<double> > &arr)
@@ -21,7 +14,8 @@ myTableModel::myTableModel(vector<vector<double> > &arr)
         }
     }
 
-    systemParams.reserve(100);
+    this->size_x = 0;
+    this->size_y = 0;
 }
 
 myTableModel::~myTableModel()
@@ -30,12 +24,72 @@ myTableModel::~myTableModel()
 
 int myTableModel::rowCount(const QModelIndex& index) const
 {
-    return systemParams.size();
+    return this->size_x;
 }
 int myTableModel::columnCount(const QModelIndex& index) const
 {
-    return systemParams[0].size();
+    return 12;
 }
+
+QVariant myTableModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if(role == Qt::DisplayRole){
+        if(orientation == Qt::Horizontal){
+            switch(section){
+            case 0:
+                return QString("Інтенсивність \nвхідного потоку");
+            case 1:
+                return QString("Pi_0j");
+            case 2:
+                return  QString("Pj");
+            case 3:
+                return QString("lj");
+            case 4:
+                return QString("mj");
+            case 5:
+                return QString("wj");
+            case 6:
+                return QString("uj");
+            case 7:
+                return QString("l");
+            case 8:
+                return QString("m");
+            case 9:
+                return QString("w");
+            case 10:
+                return QString("u");
+            }
+        }
+    }
+    // без цього не працює...
+    // Хедери не виводяться
+    return QVariant();
+}
+
+/*bool myTableModel::insertRows(int row, int count, const QModelIndex& parent)
+{
+    beginInsertRows(parent, row, row + count - 1);
+    endInsertRows();
+}
+
+bool myTableModel::removeRows(int row, int count, const QModelIndex& parent)
+{
+    beginRemoveRows(parent,row, row - count + 1);
+    endRemoveRows();
+}
+
+/*bool myTableModel::insertColumns(int row, int count, const QModelIndex& parent)
+{
+    beginInsertColumns(parent, row, row + count - 1);
+    endInsertColumns();
+}
+
+bool myTableModel::removeColumns(int row, int count, const QModelIndex& parent)
+{
+    beginRemoveColumns(parent,row, row - count + 1);
+    endRemoveColumns();
+}*/
+
 QVariant myTableModel::data(const QModelIndex& index, int role) const
 {
     if(role == Qt::DisplayRole)
