@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "tablemodel.h"
 
 namespace Ui {
 class MainWindow;
@@ -12,11 +13,13 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
+   // explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow(vector<vector<double>>& arr, QWidget *parent = 0);
     ~MainWindow();
 
 private:
     Ui::MainWindow *ui;
+    myTableModel *tabModel;
 };
 
 #endif // MAINWINDOW_H
