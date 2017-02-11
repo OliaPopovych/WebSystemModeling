@@ -26,10 +26,9 @@ int myTableModel::rowCount(const QModelIndex& index) const
 {
     return this->size_x;
 }
-// ПОМІНЯТИ ПІСЛЯ ВІДЛАГОДЖЕННЯ
 int myTableModel::columnCount(const QModelIndex& index) const
 {
-    return 5;
+    return 8;
 }
 
 QVariant myTableModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -42,9 +41,9 @@ QVariant myTableModel::headerData(int section, Qt::Orientation orientation, int 
             case 1:
                 return QString("Номер \nсистеми");
             case 2:
-                return QString("Pi_0j");
+                return QString("p_0j");
             case 3:
-                return  QString("Pj");
+                return  QString("r_j");
             case 4:
                 return QString("lj");
             case 5:
@@ -53,17 +52,10 @@ QVariant myTableModel::headerData(int section, Qt::Orientation orientation, int 
                 return QString("wj");
             case 7:
                 return QString("uj");
-            /*case 7:
-                return QString("l");
-            case 8:
-                return QString("m");
-            case 9:
-                return QString("w");
-            case 10:
-                return QString("u");*/
             }
         }
     }
+
     // без цього не працює...
     // Хедери не виводяться
     return QVariant();
@@ -72,9 +64,19 @@ QVariant myTableModel::headerData(int section, Qt::Orientation orientation, int 
 QVariant myTableModel::data(const QModelIndex& index, int role) const
 {
     if(role == Qt::DisplayRole){
-        if((index.row() == systemParams.size() - 2) && (index.column() == 1))
+        if(index.column() == 0)
+            return QString("%1").arg(intens[index.row() / probMat.size()]);
+        if(index.column() == 1 && (index.row()+1) % probMat.size() == 0)
             return QString("Для всієї \nсистеми");
-        return QString("%1").arg(probMat[index.row()][index.column()]); // саме тут ми визначаємо, дані з якого 2д вектора виводити
+        if(index.column() == 1){
+
+            return QString("S%1").arg(index.row() % probMat.size() + 1);
+        }
+        return QString("%1").arg(systemParams[index.row()][index.column()-2]); // саме тут ми визначаємо, дані з якого 2д вектора виводити
+    }
+    if(role == Qt::BackgroundRole){
+        if((index.row()+1) % probMat.size() == 0)
+            return QBrush(QColor(255,255,140));
     }
     return QVariant();
 }
@@ -85,8 +87,10 @@ bool myTableModel::insertRows(int row, int count, const QModelIndex &parent) {
 }
 
 bool myTableModel::removeRows(int row, int count, const QModelIndex &parent) {
-    beginRemoveRows(parent, row, row - count + 1);
-    endRemoveRows();
+    if(count!=0){
+        beginRemoveRows(parent, row, row + count - 1);
+        endRemoveRows();
+    }
 }
 
 void myTableModel::simplifyMatrix()
@@ -119,27 +123,149 @@ void myTableModel::simplifyMatrix()
     }
 }
 
+void myTableModel::findBetas(vector<double>& betas, vector<double>& lamb)
+{
+    for(int i = 0, j = 1; i < betas.size(); i++, j++){
+        betas[i] = lamb[j] * v[i];
+    }
+}
+void myTableModel::findRo(vector<double>& ro, vector<double>& betas)
+{
+    ro[0] = betas[0] / 2;
+    for(int i = 1; i < ro.size(); i++){
+        ro[i] = betas[i];
+    }
+}
+
+void myTableModel::findP0(vector<double>& p0, vector<double>& ro, vector<double> &betas)
+{
+    p0[0] = 1 / (betas[0] + betas[0] / (2*(1 - betas[0]/2)));
+    for(int i = 1; i < p0.size(); i++){
+        p0[i] = 1 - ro[i];
+    }
+
+}
+
+void myTableModel::findAvgQueue(vector<double>& L, vector<double>& betas, vector<double>& p0)
+{
+    L[0] = (betas[0]*betas[0]*p0[0]) / (4*(1 - betas[0]/2)*(1 - betas[0]/2));
+    for(int i = 1; i < L.size(); i++){
+        L[i] = (betas[i] * p0[i]) / ((1 - betas[0])*(1 - betas[0]));
+    }
+}
+void myTableModel::findAvgNumOfApps(vector<double>& m, vector<double>& L, vector<double>& betas)
+{
+    for(int i = 0; i < m.size(); i++){
+        m[i] = L[i] + betas[i];
+    }
+}
+void myTableModel::findAvgWaitTime(vector<double>& w, vector<double>& L, vector<double>& lamb)
+{
+    for(int i = 0; i < w.size(); i++){
+        w[i] = L[i] / lamb[i];
+    }
+}
+void myTableModel::findAvgBeingTime(vector<double>& u, vector<double>& m, vector<double>& lamb)
+{
+    for(int i = 0; i < u.size(); i++){
+        u[i] = m[i] / lamb[i];
+    }
+}
+void myTableModel::findTransmissionRates(vector<double>& a, vector<double>& lamb)
+{
+    for(int i = 0, j = 1; i < a.size(); i++, j++){
+        a[i] = lamb[j] / lamb[0];
+    }
+}
+
 void myTableModel::findSystemParams()
 {
-    vector<double> lamb, betas;
-    double intensity;
 
-    //Для дебагу
-    for(int i = 0; i < probMat.size(); i++){
-    this->insertRow(this->rowCount(QModelIndex()), QModelIndex());
-        size_x++;
-    }
-    //***
+    this->removeRows(0,this->rowCount(QModelIndex()), QModelIndex());
+    this->size_x = 0;
+
+    vector<double> lamb, betas, ro, p0, l, m, w, u, a;
+    double L = 0, M = 0, W = 0, U = 0;
+    double intensity;
+    int size = probMat.size() - 1;
+    betas.resize(size);
+    ro.resize(size);
+    p0.resize(size);
+    l.resize(size);
+    m.resize(size);
+    w.resize(size);
+    u.resize(size);
+    a.resize(size);
 
     simplifyMatrix();
 
     findIntensivities(lamb, intensity);
 
+    vector<vector<double>>::iterator it, prev;
+    vector<double>::iterator el;
+    size_t s = (lambMax - lambMin) / deltaLamb + 1;
+    systemParams.resize(s * 7);
+    for(it = systemParams.begin(); it < systemParams.end(); it++){
+        (*it).reserve(10);
+    }
+
+    int shift = size;
+    prev = systemParams.begin();
     // intensity - інт. вхідноого потоку до всієї системи
+    lambMax = lambMax + 0.000001; //До заданої точності
     for(double intensity = lambMin; intensity <= lambMax; intensity += deltaLamb){
+        intens.push_back(intensity);
+
         findIntensivities(lamb, intensity);
+        findTransmissionRates(a, lamb);
+        findBetas(betas, lamb);
+        findRo(ro, betas);
+        findP0(p0, ro, betas);
+        findAvgQueue(l, betas, p0);
+        findAvgNumOfApps(m, l, betas);
+        findAvgWaitTime(w, l, lamb);
+        findAvgBeingTime(u, m, lamb);
 
+        int i = 0;
+        for(it = prev; it < prev+shift; it++){
+            // вставляємо рядок в таблицю
+            this->insertRow(this->rowCount(QModelIndex()), QModelIndex());
+            size_x++;
 
+            (*it).push_back(p0[i]);
+            (*it).push_back(ro[i]);
+            (*it).push_back(l[i]);
+            (*it).push_back(m[i]);
+            (*it).push_back(w[i]);
+            (*it).push_back(u[i]);
+            i++;
+        }
+        prev = prev + shift + 1;
+
+        for(size_t i = 0; i < l.size(); i++){
+            L += l[i];
+        }
+        for(size_t i = 0; i < m.size(); i++){
+            M += m[i];
+        }
+        for(size_t i = 0; i < w.size(); i++){
+            W += w[i] * a[i];
+        }
+        for(size_t i = 0; i < u.size(); i++){
+            U += u[i] * a[i];
+        }
+        // вставляємо рядок в таблицю
+        this->insertRow(this->rowCount(QModelIndex()), QModelIndex());
+        size_x++;
+
+        it->push_back(0);
+        it->push_back(0);
+        it->push_back(L);
+        it->push_back(M);
+        it->push_back(W);
+        it->push_back(U);
+
+        L = M = W = U = 0;
     }
 }
 // Для 5го варіанту і більшої к-ті ПВВ. Переписати функцію знаходження
@@ -192,4 +318,8 @@ void myTableModel::setMinMaxLamb(double min, double max)
 void myTableModel::setDeltaLamb(double delta)
 {
     this->deltaLamb = delta;
+}
+void myTableModel::setNumbOfChannels(int num)
+{
+    this->numbOfChannels = num;
 }

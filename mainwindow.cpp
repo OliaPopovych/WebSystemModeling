@@ -11,6 +11,7 @@ MainWindow::MainWindow(vector<vector<double> > &arr, QWidget *parent) :
     tabModel = new myTableModel(arr);
     ui->tableView->setModel(tabModel);
 
+    ui->tableView->setStyleSheet("QHeaderView::section { background-color:QColor(0,0,190) }");
 
     for(int i=1; i < tabModel->getProbMatSize(); i++){
         ui->tableWidget->insertColumn(ui->tableWidget->columnCount());
@@ -64,8 +65,10 @@ void MainWindow::on_pushButton_clicked()
     }
 
     tabModel->setAvgServTime(arr);
-    tabModel->setMinMaxLamb(ui->doubleSpinBox_2->value(), ui->doubleSpinBox_2->value());
+    tabModel->setMinMaxLamb(ui->doubleSpinBox_2->value(), ui->doubleSpinBox->value());
     tabModel->setDeltaLamb(ui->doubleSpinBox_3->value());
 
     tabModel->findSystemParams();
+
+    ui->tableView->resizeRowsToContents();
 }
