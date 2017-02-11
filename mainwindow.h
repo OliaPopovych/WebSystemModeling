@@ -17,6 +17,12 @@ public:
     explicit MainWindow(vector<vector<double>>& arr, QWidget *parent = 0);
     ~MainWindow();
 
+    // заповнимо TableWidget стандартними V
+    void fillContentFromWidget();
+
+private slots:
+    void on_pushButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     myTableModel *tabModel;

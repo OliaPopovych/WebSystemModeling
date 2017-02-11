@@ -11,13 +11,30 @@ StartWindow::StartWindow(QWidget *parent) :
     // До речі! Звичайні 2д динамічні масиви в с++ не гарантовано послідовні!
     // бо 1й вимір - це массив вказівників на 2гий
 
+    /*double standProbMatrix[7][7] = {
+        {0,1,0,0,0,0,0},
+        {0.2,0,0.3,0.2,0.3,0,0},
+        {0,0,0,0,0,1,0},
+        {0,0,0,0,0,1,0},
+        {0,0,0,0,0,0,1},
+        {0,1,0,0,0,0,0},
+        {0,1,0,0,0,0,0}
+    };*/
     double standProbMatrix[5][5] = {
-        {0,1,0,0,0},
-        {0.3,0,0.4,0.3,0},
-        {0,0,0,0,1},
-        {0,0,0,0,1},
-        {0,1,0,0,0}
-    };
+            {0,1,0,0,0},
+            {0.3,0,0.4,0.3,0},
+            {0,0,0,0,1},
+            {0,0,0,0,1},
+            {0,1,0,0,0}
+        };
+    /*double standProbMatrix[6][6] = {
+            {0,1,0,0,0,0},
+            {0.2,0,0.3,0.6,0,0},
+            {0,0,0,0,1,0},
+            {0,0,0,0,0,1},
+            {1,0,0,0,0,0},
+            {1,0,0,0,0,0}
+        };*/
 
     for(int i = 0; i<5; i++){
         ui->tableWidget->insertRow(ui->tableWidget->rowCount());
@@ -45,7 +62,8 @@ StartWindow::~StartWindow()
 //натиснули ОК
 void StartWindow::on_pushButton_clicked()
 {
-    w->close();
+    // тут то падає то не падає...
+    //w->close();
 
     // створюємо масив матриці ймовірностей
     // на купі. При закритті вікна, він не видалиться
@@ -66,6 +84,18 @@ void StartWindow::on_pushButton_2_clicked()
     ui->tableWidget->setVerticalHeaderItem(kst, new QTableWidgetItem(str));
 
     ui->tableWidget->insertColumn(kst);
+    int y= kst +1;
+    for(int i = 0; i < y; i++){
+        QTableWidgetItem *item = new QTableWidgetItem(QString("0"));
+        ui->tableWidget->setItem(kst, i, item);
+    }
+
+    for(int i = 0; i < ui->tableWidget->rowCount(); i++){
+        // просто SetText в комірку не вийде. Треба ще для неї виділити пам*ять
+        QTableWidgetItem *item = new QTableWidgetItem(QString("0"));
+        ui->tableWidget->setItem(i, kst, item);
+    }
+
     ui->tableWidget->setHorizontalHeaderItem(kst, new QTableWidgetItem(str));
 
     ui->tableWidget->resizeRowsToContents();
