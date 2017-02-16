@@ -31,7 +31,8 @@ MainWindow::MainWindow(vector<vector<double> > &arr, QWidget *parent) :
 void MainWindow::fillContentFromWidget()
 {
     // нам відомий розмір, скористаємось стаціонарним масивом
-    double arr[] = { 0.3, 0.2, 0.2, 0.1, 0.2, 0.1 };
+    double arr[] = { 0.3, 0.2, 0.2, 0.1};
+    // double arr[] = { 0.5, 0.4, 0.3, 0.3, 0.1, 0.1 };
     QTableWidgetItem *item;
     // не спрацює. Для кожної комірки треба свій QTableWidgetItem
    // item = new QTableWidgetItem();

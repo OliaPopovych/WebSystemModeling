@@ -199,11 +199,9 @@ void myTableModel::findSystemParams()
 
     simplifyMatrix();
 
-    findIntensivities(lamb, intensity);
-
     vector<vector<double>>::iterator it, prev;
     vector<double>::iterator el;
-    size_t s = (lambMax - lambMin) / deltaLamb + 1;
+    size_t s = ((lambMax - lambMin) / deltaLamb) * 2;
     systemParams.resize(s * 7);
     for(it = systemParams.begin(); it < systemParams.end(); it++){
         (*it).reserve(10);
@@ -268,11 +266,8 @@ void myTableModel::findSystemParams()
         L = M = W = U = 0;
     }
 }
-// Для 5го варіанту і більшої к-ті ПВВ. Переписати функцію знаходження
-// ітенсивностей з матриці ймовірностей
 void myTableModel::findIntensivities(vector<double>& lamb, double intensity)
-{
-    // CAUTION: gavnokod
+{  
     lamb.resize(probMat.size());
 
     lamb[0] = intensity;
@@ -285,14 +280,16 @@ void myTableModel::findIntensivities(vector<double>& lamb, double intensity)
     for(int i = 2; i < last; i++){
         lamb[i] = elem * probMat[i][last];
     }
+
+    // Мб, нід дебагінг для більшої матриці
+    // Звідси
     if(probMat.size() > 5){
         lamb[last-1] = (probMat[last-1][last] * elem) / (1 + probMat[last-1][last]);
         lamb[last] = elem - lamb[last-1];
     }
     else
         lamb[last] = lamb[1] / probMat[1][last];
-
-    // END OF gavnokod SECTION
+    // до сюди
 }
 
 int myTableModel::getProbMatSize() const
