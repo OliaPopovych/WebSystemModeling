@@ -32,6 +32,8 @@ public:
 
 
     int getProbMatSize() const;
+    vector<vector<double> > &getParamsTable();
+    vector<double> &getLamb();
     void setAvgServTime(vector<double> &arr);
     void setMinMaxLamb(double min, double max);
     void setDeltaLamb(double delta);

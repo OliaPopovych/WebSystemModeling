@@ -265,6 +265,7 @@ void myTableModel::findSystemParams()
 
         L = M = W = U = 0;
     }
+    systemParams.resize(this->size_x);
 }
 void myTableModel::findIntensivities(vector<double>& lamb, double intensity)
 {  
@@ -319,4 +320,13 @@ void myTableModel::setDeltaLamb(double delta)
 void myTableModel::setNumbOfChannels(int num)
 {
     this->numbOfChannels = num;
+}
+
+vector<vector<double>>& myTableModel::getParamsTable()
+{
+    return systemParams;
+}
+vector<double>& myTableModel::getLamb()
+{
+    return intens;
 }

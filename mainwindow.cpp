@@ -72,4 +72,13 @@ void MainWindow::on_pushButton_clicked()
     tabModel->findSystemParams();
 
     ui->tableView->resizeRowsToContents();
+
+    ui->graph_button->setEnabled(true);
 }
+
+void MainWindow::on_graph_button_clicked()
+{
+    gr = new GraphWindow(tabModel->getParamsTable(), tabModel->getLamb(), tabModel->getProbMatSize());
+    gr->show();
+}
+

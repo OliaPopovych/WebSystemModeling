@@ -124,7 +124,7 @@
     <property name="geometry">
      <rect>
       <x>350</x>
-      <y>530</y>
+      <y>500</y>
       <width>181</width>
       <height>23</height>
      </rect>
@@ -141,6 +141,22 @@
       <width>221</width>
       <height>71</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="graph_button">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>540</y>
+      <width>181</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Вивести графіки</string>
     </property>
    </widget>
   </widget>
