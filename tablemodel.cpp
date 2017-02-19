@@ -326,6 +326,7 @@ vector<vector<double>>& myTableModel::getParamsTable()
 {
     return systemParams;
 }
+// не стабільно працює, якщо передавати по ссилці
 vector<double>& myTableModel::getLamb()
 {
     return intens;

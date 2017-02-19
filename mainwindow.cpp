@@ -78,7 +78,15 @@ void MainWindow::on_pushButton_clicked()
 
 void MainWindow::on_graph_button_clicked()
 {
-    gr = new GraphWindow(tabModel->getParamsTable(), tabModel->getLamb(), tabModel->getProbMatSize());
+    gr = new GraphWindow(tabModel->getParamsTable(), tabModel->getLamb(), tabModel->getProbMatSize() - 1);
+    gr->setGeometry(
+        QStyle::alignedRect(
+            Qt::LeftToRight,
+            Qt::AlignCenter,
+            gr->size(),
+            qApp->desktop()->availableGeometry()
+        )
+    );
     gr->show();
 }
 

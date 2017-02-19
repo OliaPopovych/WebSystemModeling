@@ -27,13 +27,14 @@ public:
     ~GraphWindow();
 
 protected:
-    void drawChart(QString name, vector<double> &row);
+    void drawChart(vector<vector<double> > &vec, QGridLayout *gridLayout, int curSys);
     void drawCharts();
 
 private:
     Ui::GraphWindow *ui;
     vector<vector<double>> params;
     vector<double> lamb;
+    int numOfSystems;
 };
 
 #endif // GRAPHWINDOW_H
